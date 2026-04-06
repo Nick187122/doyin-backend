@@ -25,12 +25,12 @@ class SettingController extends Controller
     {
         $settings = Cache::remember(
             self::PUBLIC_SETTINGS_CACHE_KEY,
-            now()->addMinutes(10),
+            now()->addMinutes(1),
             fn () => Setting::all()->pluck('value', 'key')
         );
 
         return response()->json($settings)
-            ->header('Cache-Control', 'public, max-age=300');
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate');
     }
 
     public function update(Request $request)
