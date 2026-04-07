@@ -20,6 +20,9 @@ Route::get('/public/settings',    [\App\Http\Controllers\SettingController::clas
 Route::post('/public/interactions', [UserInteractionController::class, 'store'])
     ->middleware('throttle:public-interactions');
 
+// Public salespersons (for enquiry dropdown)
+Route::get('/public/salespersons', [\App\Http\Controllers\Api\SalespersonController::class, 'publicIndex']);
+
 // ── Protected Admin routes ──────────────────────────────────
 Route::middleware(['auth:sanctum', 'active.device', 'throttle:admin-api'])->group(function () {
     Route::get('/me',              [AuthController::class, 'me']);
@@ -52,4 +55,10 @@ Route::middleware(['auth:sanctum', 'active.device', 'throttle:admin-api'])->grou
     Route::patch('/interactions/{interaction}/read', [UserInteractionController::class, 'markAsRead']);
     Route::delete('/interactions/{interaction}', [UserInteractionController::class, 'destroy']);
     Route::post('/interactions/clear', [UserInteractionController::class, 'clearAll']);
+
+    // Salespersons
+    Route::get('/salespersons',                  [\App\Http\Controllers\Api\SalespersonController::class, 'index']);
+    Route::post('/salespersons',                 [\App\Http\Controllers\Api\SalespersonController::class, 'store']);
+    Route::put('/salespersons/{salesperson}',    [\App\Http\Controllers\Api\SalespersonController::class, 'update']);
+    Route::delete('/salespersons/{salesperson}', [\App\Http\Controllers\Api\SalespersonController::class, 'destroy']);
 });
