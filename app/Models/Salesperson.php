@@ -6,7 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Salesperson extends Model
 {
+    protected $table = 'salespersons';
+
     protected $fillable = ['name', 'phone_number', 'is_active'];
+
 
     protected $casts = [
         'is_active' => 'boolean',
