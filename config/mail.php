@@ -115,4 +115,6 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    'admin_otp_to' => env('ADMIN_OTP_EMAIL', env('ADMIN_EMAIL')),
+
 ];

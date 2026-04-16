@@ -26,6 +26,7 @@ Route::get('/public/salespersons', [\App\Http\Controllers\Api\SalespersonControl
 // ── Protected Admin routes ──────────────────────────────────
 Route::middleware(['auth:sanctum', 'active.device', 'throttle:admin-api'])->group(function () {
     Route::get('/me',              [AuthController::class, 'me']);
+    Route::post('/change-password/request-otp', [AuthController::class, 'requestPasswordChangeOtp']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
     Route::post('/logout',         [AuthController::class, 'logout']);
 

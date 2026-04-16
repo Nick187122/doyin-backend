@@ -18,20 +18,24 @@ class User extends Authenticatable
         'password',
         'must_change_password',
         'active_device_token',
+        'password_change_otp',
+        'password_change_otp_expires_at',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
         'active_device_token',
+        'password_change_otp',
     ];
 
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-            'password'          => 'hashed',
+            'password' => 'hashed',
             'must_change_password' => 'boolean',
+            'password_change_otp_expires_at' => 'datetime',
         ];
     }
 }

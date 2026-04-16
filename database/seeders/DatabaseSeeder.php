@@ -17,12 +17,12 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
-        User::firstOrCreate(
+        User::updateOrCreate(
             ['email' => $email],
             [
                 'name'                => 'Doyin Admin',
                 'password'            => Hash::make($password),
-                'must_change_password' => true,
+                'must_change_password' => false,
                 'active_device_token' => null,
             ]
         );
