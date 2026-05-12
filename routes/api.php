@@ -11,6 +11,7 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:lo
 
 // Public product browsing (for the public-facing site)
 Route::get('/public/products',    [ProductController::class, 'publicIndex']);
+Route::get('/public/sitemap/products', [ProductController::class, 'publicSitemapIndex']);
 Route::get('/public/products/{id}', [ProductController::class, 'publicShow']);
 Route::post('/public/products/{product}/view', [ProductController::class, 'incrementView'])
     ->middleware('throttle:public-views');

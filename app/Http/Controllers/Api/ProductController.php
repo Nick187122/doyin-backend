@@ -14,6 +14,7 @@ class ProductController extends Controller
 {
     private const PUBLIC_PRODUCTS_CACHE_KEY = 'public.products.index';
     private const PUBLIC_PRODUCT_CACHE_PREFIX = 'public.products.show.';
+    private const PUBLIC_SITEMAP_PRODUCTS_CACHE_KEY = 'public.products.sitemap';
 
     public function index()
     {
@@ -130,6 +131,26 @@ class ProductController extends Controller
             ->header('Cache-Control', 'public, max-age=300');
     }
 
+    public function publicSitemapIndex()
+    {
+        $products = Cache::remember(
+            self::PUBLIC_SITEMAP_PRODUCTS_CACHE_KEY,
+            now()->addMinutes(30),
+            fn () => Product::query()
+                ->select(['id', 'updated_at'])
+                ->orderBy('id')
+                ->get()
+                ->map(fn (Product $product) => [
+                    'id' => $product->id,
+                    'updated_at' => $product->updated_at?->toISOString(),
+                ])
+                ->all()
+        );
+
+        return response()->json($products)
+            ->header('Cache-Control', 'public, max-age=1800');
+    }
+
     public function incrementView(Product $product)
     {
         $product->increment('views_count');
@@ -157,6 +178,7 @@ class ProductController extends Controller
     {
         Cache::forget(self::PUBLIC_PRODUCTS_CACHE_KEY);
         Cache::forget(self::PUBLIC_PRODUCT_CACHE_PREFIX . $productId);
+        Cache::forget(self::PUBLIC_SITEMAP_PRODUCTS_CACHE_KEY);
         Cache::forget('public.categories.index');
     }
 
