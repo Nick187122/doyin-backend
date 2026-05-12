@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Product;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -19,6 +21,17 @@ class SettingController extends Controller
         'facebook_url',
         'instagram_url',
         'about_video_url',
+        'homepage_new_arrivals_enabled',
+        'homepage_new_arrivals_badge',
+        'homepage_new_arrivals_title',
+        'homepage_new_arrivals_copy',
+        'homepage_new_arrivals_count',
+        'homepage_new_arrivals_category_id',
+        'homepage_featured_products_enabled',
+        'homepage_featured_products_badge',
+        'homepage_featured_products_title',
+        'homepage_featured_products_copy',
+        'homepage_featured_product_ids',
     ];
 
     public function index()
@@ -97,6 +110,7 @@ class SettingController extends Controller
         }
 
         if (empty($settings['about_video_url'])) {
+            $this->validateHomepageSettings($validator, $settings);
             return;
         }
 
@@ -123,6 +137,85 @@ class SettingController extends Controller
                 'settings.about_video_url',
                 'The video URL must be a YouTube or Vimeo link.'
             );
+        }
+
+        $this->validateHomepageSettings($validator, $settings);
+    }
+
+    private function validateHomepageSettings($validator, array $settings): void
+    {
+        if (isset($settings['homepage_new_arrivals_enabled'])
+            && ! in_array((string) $settings['homepage_new_arrivals_enabled'], ['0', '1'], true)) {
+            $validator->errors()->add(
+                'settings.homepage_new_arrivals_enabled',
+                'The new arrivals toggle must be 1 or 0.'
+            );
+        }
+
+        if (isset($settings['homepage_new_arrivals_count'])
+            && $settings['homepage_new_arrivals_count'] !== ''
+            && (! ctype_digit((string) $settings['homepage_new_arrivals_count'])
+                || (int) $settings['homepage_new_arrivals_count'] < 1
+                || (int) $settings['homepage_new_arrivals_count'] > 12)) {
+            $validator->errors()->add(
+                'settings.homepage_new_arrivals_count',
+                'The new arrivals count must be a whole number between 1 and 12.'
+            );
+        }
+
+        if (isset($settings['homepage_new_arrivals_category_id'])
+            && $settings['homepage_new_arrivals_category_id'] !== ''
+            ) {
+            $categoryId = (string) $settings['homepage_new_arrivals_category_id'];
+
+            if (! ctype_digit($categoryId) || ! Category::query()->whereKey((int) $categoryId)->exists()) {
+                $validator->errors()->add(
+                    'settings.homepage_new_arrivals_category_id',
+                    'The selected category must be a valid category id.'
+                );
+            }
+        }
+
+        if (isset($settings['homepage_featured_products_enabled'])
+            && ! in_array((string) $settings['homepage_featured_products_enabled'], ['0', '1'], true)) {
+            $validator->errors()->add(
+                'settings.homepage_featured_products_enabled',
+                'The featured products toggle must be 1 or 0.'
+            );
+        }
+
+        if (isset($settings['homepage_featured_product_ids']) && $settings['homepage_featured_product_ids'] !== '') {
+            $rawIds = collect(explode(',', (string) $settings['homepage_featured_product_ids']))
+                ->map(fn ($value) => trim($value))
+                ->filter();
+
+            if ($rawIds->contains(fn ($value) => ! ctype_digit($value))) {
+                $validator->errors()->add(
+                    'settings.homepage_featured_product_ids',
+                    'Featured products must contain only valid product ids.'
+                );
+
+                return;
+            }
+
+            $ids = $rawIds->map(fn ($value) => (int) $value)->unique()->values();
+
+            if ($ids->count() > 8) {
+                $validator->errors()->add(
+                    'settings.homepage_featured_product_ids',
+                    'Select at most 8 featured products.'
+                );
+            }
+
+            $existingIds = Product::query()->whereIn('id', $ids)->pluck('id')->all();
+            $missingIds = $ids->diff($existingIds);
+
+            if ($missingIds->isNotEmpty()) {
+                $validator->errors()->add(
+                    'settings.homepage_featured_product_ids',
+                    'One or more featured products no longer exist.'
+                );
+            }
         }
     }
 }
