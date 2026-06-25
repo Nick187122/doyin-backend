@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: doyin-backend
+    env: php
+    plan: free
+    buildCommand: "bash render-build.sh"
+    startCommand: "" # Render automatically uses Apache for the PHP environment
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: LOG_CHANNEL
+        value: errorlog
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_PORT
+        value: "5432" # Standard Supabase port
+      - key: DB_DATABASE
+        value: "postgres" # Default Supabase database name
