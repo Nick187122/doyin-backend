@@ -8,11 +8,37 @@ services:
         value: production
       - key: APP_DEBUG
         value: "false"
+      - key: APP_KEY
+        sync: false  # Generate via: php artisan key:generate --show
       - key: LOG_CHANNEL
         value: errorlog
       - key: DB_CONNECTION
         value: pgsql
+      - key: DB_HOST
+        sync: false  # Your Supabase DB host (db.<ref>.supabase.co)
       - key: DB_PORT
-        value: "5432" # Standard Supabase port
+        value: "5432"
       - key: DB_DATABASE
-        value: "postgres" # Default Supabase database name
+        value: "postgres"
+      - key: DB_USERNAME
+        sync: false  # Usually "postgres"
+      - key: DB_PASSWORD
+        sync: false  # Your Supabase database password
+      - key: DB_SSLMODE
+        value: "require"
+      - key: MAIL_MAILER
+        value: smtp
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM_ADDRESS
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: "Doyin Kenya"
+      - key: SESSION_DRIVER
+        value: database
