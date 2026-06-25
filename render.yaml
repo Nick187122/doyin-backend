@@ -14,26 +14,23 @@ services:
         value: errorlog
       - key: DB_CONNECTION
         value: pgsql
-      # Option A: Use the full Supabase connection string (easiest)
-      # Format: postgresql://postgres.<project-ref>:<password>@aws-0-eu-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true
-      # Get this from Supabase Dashboard > Project Settings > Database > Connection string (Pooled)
-      - key: DATABASE_URL
-        sync: false
-      # Option B: Use individual DB_* env vars instead (for direct connection)
-      # Direct: host=db.<project-ref>.supabase.co, port=5432, user=postgres
-      # Pooled: host=aws-0-eu-west-2.pooler.supabase.com, port=6543, user=postgres.<project-ref>
+      # Supabase Direct Connection (recommended - avoids pooler issues)
+      # Host: db.<project-ref>.supabase.co, Port: 5432, User: postgres
       - key: DB_HOST
-        sync: false
+        sync: false  # Your Supabase direct host, e.g. db.xxxxx.supabase.co
       - key: DB_PORT
-        value: "6543"
+        value: "5432"
       - key: DB_DATABASE
         value: "postgres"
       - key: DB_USERNAME
-        sync: false  # postgres.<project-ref> for pooled; postgres for direct
+        value: "postgres"
       - key: DB_PASSWORD
-        sync: false
+        sync: false  # Your Supabase database password
       - key: DB_SSLMODE
         value: "require"
+      # Leave DATABASE_URL empty when using individual DB_* vars
+      - key: DATABASE_URL
+        value: ""
       - key: MAIL_MAILER
         value: smtp
       - key: MAIL_HOST
