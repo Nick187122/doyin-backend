@@ -9,11 +9,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('categories', function (Blueprint $table) {
-            $table->boolean('is_pump')->default(true)->after('name');
-        });
+        if (!Schema::hasColumn('categories', 'is_pump')) {
+            Schema::table('categories', function (Blueprint $table) {
+                $table->boolean('is_pump')->default(true)->after('name');
+            });
+        }
 
-        DB::table('categories')->update(['is_pump' => true]);
+        // Use DB::raw('true') for PostgreSQL compatibility (boolean vs integer)
+        DB::table('categories')->update(['is_pump' => DB::raw('true')]);
     }
 
     public function down(): void
