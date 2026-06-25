@@ -14,18 +14,18 @@ services:
         value: errorlog
       - key: DB_CONNECTION
         value: pgsql
-      # Supabase Direct Connection (recommended - avoids pooler issues)
-      # Host: db.<project-ref>.supabase.co, Port: 5432, User: postgres
+      # Supabase Pooled Connection (use this for Render - direct connection is unreachable)
+      # Host: <region>.pooler.supabase.com, Port: 6543, User: postgres.<project-ref>
       - key: DB_HOST
-        sync: false  # Your Supabase direct host, e.g. db.xxxxx.supabase.co
+        sync: false  # e.g. aws-1-eu-west-2.pooler.supabase.com
       - key: DB_PORT
-        value: "5432"
+        value: "6543"
       - key: DB_DATABASE
         value: "postgres"
       - key: DB_USERNAME
-        value: "postgres"
+        sync: false  # postgres.<your-project-ref> (e.g. postgres.aadmgspanwzcmzyxupsw)
       - key: DB_PASSWORD
-        sync: false  # Your Supabase database password
+        sync: false
       - key: DB_SSLMODE
         value: "require"
       # Leave DATABASE_URL empty when using individual DB_* vars
