@@ -4,7 +4,7 @@ services:
     env: php
     plan: free
     buildCommand: "bash render-build.sh"
-    startCommand: "" # Render automatically uses Apache for the PHP environment
+    startCommand: "heroku-php-apache2 public/" # Render uses the Heroku PHP buildpack under the hood
     envVars:
       - key: APP_ENV
         value: production
