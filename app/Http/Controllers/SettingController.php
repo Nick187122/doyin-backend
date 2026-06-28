@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class SettingController extends Controller
@@ -42,8 +43,26 @@ class SettingController extends Controller
             fn () => Setting::all()->pluck('value', 'key')
         );
 
+        // Transform about_image to a full URL for both legacy and Supabase paths
+        if (isset($settings['about_image'])) {
+            $settings['about_image'] = $this->imageUrl($settings['about_image']);
+        }
+
         return response()->json($settings)
             ->header('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+
+    private function imageUrl(?string $path): ?string
+    {
+        if (! $path) {
+            return null;
+        }
+
+        if (str_starts_with($path, '/storage/')) {
+            return asset(ltrim($path, '/'));
+        }
+
+        return Storage::disk('supabase-settings')->url($path);
     }
 
     public function update(Request $request)
@@ -86,11 +105,11 @@ class SettingController extends Controller
         }
 
         if ($request->hasFile('about_image')) {
-            $path = $request->file('about_image')->store('settings', 'public');
+            $path = $request->file('about_image')->store('/', 'supabase-settings');
 
             Setting::updateOrCreate(
                 ['key' => 'about_image'],
-                ['value' => '/storage/' . $path]
+                ['value' => $path]
             );
         }
 

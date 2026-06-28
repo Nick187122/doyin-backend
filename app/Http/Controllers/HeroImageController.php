@@ -21,13 +21,17 @@ class HeroImageController extends Controller
             fn () => HeroImage::where('is_active', true)->orderBy('order')->get()
         );
 
+        $images = $images->map(fn ($image) => $this->serializeHeroImage($image));
+
         return response()->json($images)
             ->header('Cache-Control', 'public, max-age=300');
     }
 
     public function adminIndex()
     {
-        return response()->json(HeroImage::orderBy('order')->get());
+        $images = HeroImage::orderBy('order')->get()->map(fn ($image) => $this->serializeHeroImage($image));
+
+        return response()->json($images);
     }
 
     public function store(Request $request)
@@ -39,10 +43,10 @@ class HeroImageController extends Controller
             'order' => 'integer',
         ]);
 
-        $path = $request->file('image')->store('hero-images', 'public');
-        
+        $path = $request->file('image')->store('/', 'supabase-hero-images');
+
         $heroImage = HeroImage::create([
-            'image_path' => '/storage/' . $path,
+            'image_path' => $path,
             'title' => $request->title,
             'is_active' => $request->has('is_active') ? $request->is_active : true,
             'order' => $request->order ?? 0,
@@ -50,7 +54,7 @@ class HeroImageController extends Controller
 
         $this->clearHeroImageCache();
 
-        return response()->json($heroImage, 201);
+        return response()->json($this->serializeHeroImage($heroImage), 201);
     }
 
     public function update(Request $request, HeroImage $heroImage)
@@ -64,22 +68,51 @@ class HeroImageController extends Controller
         $heroImage->update($request->only(['title', 'is_active', 'order']));
         $this->clearHeroImageCache();
 
-        return response()->json($heroImage);
+        return response()->json($this->serializeHeroImage($heroImage));
     }
 
     public function destroy(HeroImage $heroImage)
     {
-        $path = str_replace('/storage/', '', $heroImage->image_path);
-        if (Storage::disk('public')->exists($path)) {
-            Storage::disk('public')->delete($path);
+        $path = $heroImage->image_path;
+
+        if ($path) {
+            if (str_starts_with($path, '/storage/')) {
+                $localPath = str_replace('/storage/', '', $path);
+                if (Storage::disk('public')->exists($localPath)) {
+                    Storage::disk('public')->delete($localPath);
+                }
+            } else {
+                Storage::disk('supabase-hero-images')->delete($path);
+            }
         }
+
         $heroImage->delete();
         $this->clearHeroImageCache();
+
         return response()->json(['message' => 'Image deleted']);
     }
 
     private function clearHeroImageCache(): void
     {
         Cache::forget(self::PUBLIC_HERO_IMAGES_CACHE_KEY);
+    }
+
+    private function serializeHeroImage(HeroImage $image): HeroImage
+    {
+        $image->image_url = $this->imageUrl($image->image_path);
+        return $image;
+    }
+
+    private function imageUrl(?string $path): ?string
+    {
+        if (! $path) {
+            return null;
+        }
+
+        if (str_starts_with($path, '/storage/')) {
+            return asset(ltrim($path, '/'));
+        }
+
+        return Storage::disk('supabase-hero-images')->url($path);
     }
 }

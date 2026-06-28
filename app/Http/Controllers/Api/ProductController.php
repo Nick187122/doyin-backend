@@ -49,7 +49,7 @@ class ProductController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('products', 'public');
+            $data['image_path'] = $request->file('image')->store('/', 'supabase-products');
         }
 
         unset($data['image']);
@@ -88,11 +88,13 @@ class ProductController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            if ($product->image_path) {
+            if ($product->image_path && ! str_starts_with($product->image_path, '/storage/')) {
+                Storage::disk('supabase-products')->delete($product->image_path);
+            } elseif ($product->image_path) {
                 Storage::disk('public')->delete($product->image_path);
             }
 
-            $data['image_path'] = $request->file('image')->store('products', 'public');
+            $data['image_path'] = $request->file('image')->store('/', 'supabase-products');
         }
 
         unset($data['image']);
@@ -108,7 +110,11 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         if ($product->image_path) {
-            Storage::disk('public')->delete($product->image_path);
+            if (! str_starts_with($product->image_path, '/storage/')) {
+                Storage::disk('supabase-products')->delete($product->image_path);
+            } else {
+                Storage::disk('public')->delete($product->image_path);
+            }
         }
 
         $productId = $product->id;
@@ -245,10 +251,23 @@ class ProductController extends Controller
 
     private function serializeProduct(Product $product): Product
     {
-        $product->image_url = $product->image_path
-            ? asset('storage/' . $product->image_path)
-            : null;
+        $product->image_url = $this->imageUrl($product->image_path);
 
         return $product;
+    }
+
+    private function imageUrl(?string $path): ?string
+    {
+        if (! $path) {
+            return null;
+        }
+
+        // Legacy local storage path — keep existing format
+        if (str_starts_with($path, '/storage/')) {
+            return asset(ltrim($path, '/'));
+        }
+
+        // New Supabase S3 path
+        return Storage::disk('supabase-products')->url($path);
     }
 }

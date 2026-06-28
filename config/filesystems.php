@@ -60,6 +60,62 @@ return [
             'report' => false,
         ],
 
+        'supabase-products' => [
+            'driver' => 's3',
+            'key' => env('SUPABASE_S3_ACCESS_KEY_ID'),
+            'secret' => env('SUPABASE_S3_SECRET_ACCESS_KEY'),
+            'region' => env('SUPABASE_S3_REGION', 'us-east-1'),
+            'bucket' => env('SUPABASE_S3_BUCKET_PRODUCTS', 'products'),
+            'endpoint' => env('SUPABASE_S3_ENDPOINT'),
+            'url' => rtrim(env('SUPABASE_STORAGE_PUBLIC_URL'), '/') . '/' . env('SUPABASE_S3_BUCKET_PRODUCTS', 'products'),
+            'use_path_style_endpoint' => true,
+            'throw' => false,
+            'report' => false,
+            'visibility' => 'public',
+        ],
+
+        'supabase-hero-images' => [
+            'driver' => 's3',
+            'key' => env('SUPABASE_S3_ACCESS_KEY_ID'),
+            'secret' => env('SUPABASE_S3_SECRET_ACCESS_KEY'),
+            'region' => env('SUPABASE_S3_REGION', 'us-east-1'),
+            'bucket' => env('SUPABASE_S3_BUCKET_HERO_IMAGES', 'hero-images'),
+            'endpoint' => env('SUPABASE_S3_ENDPOINT'),
+            'url' => rtrim(env('SUPABASE_STORAGE_PUBLIC_URL'), '/') . '/' . env('SUPABASE_S3_BUCKET_HERO_IMAGES', 'hero-images'),
+            'use_path_style_endpoint' => true,
+            'throw' => false,
+            'report' => false,
+            'visibility' => 'public',
+        ],
+
+        'supabase-testimonials' => [
+            'driver' => 's3',
+            'key' => env('SUPABASE_S3_ACCESS_KEY_ID'),
+            'secret' => env('SUPABASE_S3_SECRET_ACCESS_KEY'),
+            'region' => env('SUPABASE_S3_REGION', 'us-east-1'),
+            'bucket' => env('SUPABASE_S3_BUCKET_TESTIMONIALS', 'testimonials'),
+            'endpoint' => env('SUPABASE_S3_ENDPOINT'),
+            'url' => rtrim(env('SUPABASE_STORAGE_PUBLIC_URL'), '/') . '/' . env('SUPABASE_S3_BUCKET_TESTIMONIALS', 'testimonials'),
+            'use_path_style_endpoint' => true,
+            'throw' => false,
+            'report' => false,
+            'visibility' => 'public',
+        ],
+
+        'supabase-settings' => [
+            'driver' => 's3',
+            'key' => env('SUPABASE_S3_ACCESS_KEY_ID'),
+            'secret' => env('SUPABASE_S3_SECRET_ACCESS_KEY'),
+            'region' => env('SUPABASE_S3_REGION', 'us-east-1'),
+            'bucket' => env('SUPABASE_S3_BUCKET_SETTINGS', 'settings'),
+            'endpoint' => env('SUPABASE_S3_ENDPOINT'),
+            'url' => rtrim(env('SUPABASE_STORAGE_PUBLIC_URL'), '/') . '/' . env('SUPABASE_S3_BUCKET_SETTINGS', 'settings'),
+            'use_path_style_endpoint' => true,
+            'throw' => false,
+            'report' => false,
+            'visibility' => 'public',
+        ],
+
     ],
 
     /*
