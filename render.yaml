@@ -47,3 +47,25 @@ services:
         value: "Doyin Kenya"
       - key: SESSION_DRIVER
         value: database
+      # Filesystem & Storage
+      - key: FILESYSTEM_DISK
+        value: local
+      # Supabase S3 Storage Configuration
+      - key: SUPABASE_S3_ACCESS_KEY_ID
+        sync: false
+      - key: SUPABASE_S3_SECRET_ACCESS_KEY
+        sync: false
+      - key: SUPABASE_S3_REGION
+        value: "us-east-1"
+      - key: SUPABASE_S3_ENDPOINT
+        sync: false
+      - key: SUPABASE_STORAGE_PUBLIC_URL
+        sync: false
+      - key: SUPABASE_S3_BUCKET_PRODUCTS
+        value: "products"
+      - key: SUPABASE_S3_BUCKET_HERO_IMAGES
+        value: "hero-images"
+      - key: SUPABASE_S3_BUCKET_TESTIMONIALS
+        value: "testimonials"
+      - key: SUPABASE_S3_BUCKET_SETTINGS
+        value: "settings"

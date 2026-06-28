@@ -6,11 +6,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        // If the testimonials table doesn't exist yet (e.g. the create migration
-        // was recorded as ran but the table was never actually created), create
-        // it here with all columns including video_url.
         if (!Schema::hasTable('testimonials')) {
             Schema::create('testimonials', function (Blueprint $table) {
                 $table->id();
@@ -19,25 +19,19 @@ return new class extends Migration
                 $table->string('company')->nullable();
                 $table->text('content');
                 $table->string('avatar')->nullable();
-                $table->string('video_url')->nullable();
                 $table->unsignedTinyInteger('rating')->nullable()->default(5);
                 $table->boolean('is_visible')->default(true);
                 $table->integer('sort_order')->default(0);
                 $table->timestamps();
             });
-        } elseif (!Schema::hasColumn('testimonials', 'video_url')) {
-            Schema::table('testimonials', function (Blueprint $table) {
-                $table->string('video_url')->nullable()->after('avatar');
-            });
         }
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        if (Schema::hasTable('testimonials') && Schema::hasColumn('testimonials', 'video_url')) {
-            Schema::table('testimonials', function (Blueprint $table) {
-                $table->dropColumn('video_url');
-            });
-        }
+        Schema::dropIfExists('testimonials');
     }
 };

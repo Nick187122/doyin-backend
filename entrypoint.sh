@@ -12,7 +12,7 @@ php artisan route:cache || true
 php artisan view:cache || true
 
 echo "Running migrations..."
-php artisan migrate --force
+php artisan migrate --force || { echo "WARNING: Migration failed, but continuing startup..."; }
 
 echo "Starting Apache..."
 apache2-foreground

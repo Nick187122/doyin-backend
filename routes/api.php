@@ -6,6 +6,16 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\UserInteractionController;
 
+// ── Health / Keep-alive ────────────────────────────────────
+Route::get('/health', function () {
+    try {
+        \Illuminate\Support\Facades\DB::select('SELECT 1');
+        return response()->json(['status' => 'healthy', 'database' => 'ok', 'timestamp' => now()->toIso8601String()]);
+    } catch (\Exception $e) {
+        return response()->json(['status' => 'unhealthy', 'database' => 'error', 'message' => $e->getMessage()], 500);
+    }
+});
+
 // ── Public routes ──────────────────────────────────────────
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
@@ -23,6 +33,9 @@ Route::post('/public/interactions', [UserInteractionController::class, 'store'])
 
 // Public salespersons (for enquiry dropdown)
 Route::get('/public/salespersons', [\App\Http\Controllers\Api\SalespersonController::class, 'publicIndex']);
+
+// Public testimonials
+Route::get('/public/testimonials', [\App\Http\Controllers\Api\TestimonialController::class, 'publicIndex']);
 
 // ── Protected Admin routes ──────────────────────────────────
 Route::middleware(['auth:sanctum', 'active.device', 'throttle:admin-api'])->group(function () {
@@ -63,4 +76,10 @@ Route::middleware(['auth:sanctum', 'active.device', 'throttle:admin-api'])->grou
     Route::post('/salespersons',                 [\App\Http\Controllers\Api\SalespersonController::class, 'store']);
     Route::put('/salespersons/{salesperson}',    [\App\Http\Controllers\Api\SalespersonController::class, 'update']);
     Route::delete('/salespersons/{salesperson}', [\App\Http\Controllers\Api\SalespersonController::class, 'destroy']);
+
+    // Testimonials
+    Route::get('/testimonials',                   [\App\Http\Controllers\Api\TestimonialController::class, 'index']);
+    Route::post('/testimonials',                  [\App\Http\Controllers\Api\TestimonialController::class, 'store']);
+    Route::put('/testimonials/{testimonial}',     [\App\Http\Controllers\Api\TestimonialController::class, 'update']);
+    Route::delete('/testimonials/{testimonial}',  [\App\Http\Controllers\Api\TestimonialController::class, 'destroy']);
 });
