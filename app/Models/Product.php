@@ -15,6 +15,7 @@ class Product extends Model
         'max_height',
         'recommended_depth',
         'ideal_power',
+        'performance_curves',
         'in_stock',
     ];
 
@@ -27,6 +28,7 @@ class Product extends Model
     {
         return [
             'in_stock' => 'boolean',
+            'performance_curves' => 'array',
         ];
     }
 }

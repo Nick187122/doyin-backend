@@ -1,4 +1,5 @@
-FROM php:8.2-apache
+# ── Stage 1: Dependencies (cached layer) ──────────────────
+FROM php:8.2-apache AS vendor
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -10,22 +11,43 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libpq-dev \
-    && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
-
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
+    && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
-COPY . /var/www/html
+# Copy only dependency files first (cache-friendly)
+COPY composer.json composer.lock ./
 
 # Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# ── Stage 2: Final image ─────────────────────────────────
+FROM php:8.2-apache
+
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libpq-dev \
+    && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
+
+WORKDIR /var/www/html
+
+# Copy vendor from stage 1
+COPY --from=vendor /var/www/html/vendor ./vendor
+
+# Copy application source
+COPY . .
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache

@@ -36,6 +36,7 @@ class ProductController extends Controller
             'max_height' => 'nullable|string|max:100',
             'recommended_depth' => 'nullable|string|max:100',
             'ideal_power' => 'nullable|string|max:100',
+            'performance_curves' => 'nullable|json',
             'in_stock' => 'boolean',
         ]);
 
@@ -46,6 +47,10 @@ class ProductController extends Controller
                 'message' => 'A similar product already exists. Edit the existing product instead of creating a duplicate.',
                 'similar_product' => $this->serializeProduct($similarProduct->load('category')),
             ], 422);
+        }
+
+        if (isset($data['performance_curves']) && is_string($data['performance_curves'])) {
+            $data['performance_curves'] = json_decode($data['performance_curves'], true);
         }
 
         if ($request->hasFile('image')) {
@@ -75,6 +80,7 @@ class ProductController extends Controller
             'max_height' => 'nullable|string|max:100',
             'recommended_depth' => 'nullable|string|max:100',
             'ideal_power' => 'nullable|string|max:100',
+            'performance_curves' => 'nullable|json',
             'in_stock' => 'boolean',
         ]);
 
@@ -85,6 +91,10 @@ class ProductController extends Controller
                 'message' => 'A similar product already exists. Edit that product instead of saving a duplicate.',
                 'similar_product' => $this->serializeProduct($similarProduct->load('category')),
             ], 422);
+        }
+
+        if (isset($data['performance_curves']) && is_string($data['performance_curves'])) {
+            $data['performance_curves'] = json_decode($data['performance_curves'], true);
         }
 
         if ($request->hasFile('image')) {
