@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'category_id',
         'name',
         'description',
+        'price',
         'image_path',
         'max_flow_rate',
         'max_height',
@@ -27,6 +31,7 @@ class Product extends Model
     protected function casts(): array
     {
         return [
+            'price' => 'decimal:2',
             'in_stock' => 'boolean',
             'performance_curves' => 'array',
         ];

@@ -18,9 +18,11 @@ class EnsureActiveDevice
 
         $deviceToken = $request->header('X-Device-Token');
 
-        if (! $deviceToken || $user->active_device_token !== $deviceToken) {
-            $request->user()->currentAccessToken()?->delete();
+        if (! $deviceToken) {
+            return response()->json(['message' => 'Device token required.'], 401);
+        }
 
+        if ($user->active_device_token !== null && $user->active_device_token !== $deviceToken) {
             return response()->json([
                 'message' => 'Session invalidated. Another device has logged in.',
             ], 401);

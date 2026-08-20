@@ -1,0 +1,40 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\Category;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends Factory<Category>
+ */
+class CategoryFactory extends Factory
+{
+    protected $model = Category::class;
+
+    public function definition(): array
+    {
+        return [
+            'name' => fake()->unique()->word() . ' Pumps',
+            'is_pump' => true,
+            'has_ideal_power' => false,
+        ];
+    }
+
+    public function accessory(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => fake()->word() . ' Accessories',
+            'is_pump' => false,
+            'has_ideal_power' => false,
+        ]);
+    }
+
+    public function pumpWithIdealPower(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_pump' => true,
+            'has_ideal_power' => true,
+        ]);
+    }
+}

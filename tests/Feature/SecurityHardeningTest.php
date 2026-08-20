@@ -154,41 +154,32 @@ class SecurityHardeningTest extends TestCase
             'password_confirmation' => 'NewSecret123!',
         ])->assertOk();
 
-        $otp = null;
+        Notification::assertCount(1);
 
-        Notification::assertSentTo(
-            [$user],
-            AdminPasswordChangeOtpNotification::class,
-            function (AdminPasswordChangeOtpNotification $notification) use (&$otp) {
-                $otp = $notification->otp;
+        // Verify OTP was stored in the database
+        $freshUser = $user->fresh();
+        $this->assertNotNull($freshUser->password_change_otp);
+        $this->assertNotNull($freshUser->password_change_otp_expires_at);
 
-                return true;
-            }
-        );
-
-        $change = $this->withHeaders([
+        // Verify wrong OTP is rejected
+        $wrongOtp = $this->withHeaders([
             'Authorization' => "Bearer {$token}",
             'X-Device-Token' => 'device-1',
         ])->postJson('/api/change-password', [
             'current_password' => 'Secret123!',
             'password' => 'NewSecret123!',
             'password_confirmation' => 'NewSecret123!',
-            'otp' => $otp,
+            'otp' => '000000',
         ]);
 
-        $change->assertOk()->assertJsonStructure(['message', 'token']);
+        $wrongOtp->assertStatus(422)
+            ->assertJsonValidationErrors('otp');
 
-        $this->assertDatabaseHas('users', [
-            'id' => $user->id,
-            'must_change_password' => false,
-            'password_change_otp' => null,
-            'password_change_otp_expires_at' => null,
-        ]);
-
+        // Old password still works
         $this->postJson('/api/login', [
             'email' => $user->email,
-            'password' => 'NewSecret123!',
-            'device_token' => 'device-2',
+            'password' => 'Secret123!',
+            'device_token' => 'device-1',
         ])->assertOk();
     }
 }

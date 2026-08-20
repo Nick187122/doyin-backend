@@ -25,12 +25,11 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $category = Category::findOrFail($request->input('category_id'));
-
         $data = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'price' => 'nullable|numeric|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
             'max_flow_rate' => 'nullable|string|max:100',
             'max_height' => 'nullable|string|max:100',
@@ -39,6 +38,8 @@ class ProductController extends Controller
             'performance_curves' => 'nullable|json',
             'in_stock' => 'boolean',
         ]);
+
+        $category = Category::findOrFail($data['category_id']);
 
         $data = $this->normalizeCategorySpecificFields($data, $category);
 
@@ -69,12 +70,11 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        $category = Category::findOrFail($request->input('category_id'));
-
         $data = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'price' => 'nullable|numeric|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
             'max_flow_rate' => 'nullable|string|max:100',
             'max_height' => 'nullable|string|max:100',
@@ -83,6 +83,8 @@ class ProductController extends Controller
             'performance_curves' => 'nullable|json',
             'in_stock' => 'boolean',
         ]);
+
+        $category = Category::findOrFail($data['category_id']);
 
         $data = $this->normalizeCategorySpecificFields($data, $category);
 
@@ -224,7 +226,6 @@ class ProductController extends Controller
     private function findSimilarProduct(array $data, ?int $ignoreProductId = null): ?Product
     {
         $incomingName = $this->normalizeComparableText($data['name'] ?? '');
-        $incomingDescription = $this->normalizeComparableText($data['description'] ?? '');
 
         if ($incomingName === '') {
             return null;
@@ -237,10 +238,8 @@ class ProductController extends Controller
 
         foreach ($products as $product) {
             $existingName = $this->normalizeComparableText($product->name);
-            $existingDescription = $this->normalizeComparableText($product->description ?? '');
 
-            if ($existingName === $incomingName
-                && ($incomingDescription === '' || $existingDescription === '' || $incomingDescription === $existingDescription)) {
+            if ($existingName === $incomingName) {
                 return $product;
             }
         }
@@ -262,6 +261,7 @@ class ProductController extends Controller
     private function serializeProduct(Product $product): Product
     {
         $product->image_url = $this->imageUrl($product->image_path);
+        $product->price = $product->price ? (float) $product->price : null;
 
         return $product;
     }
