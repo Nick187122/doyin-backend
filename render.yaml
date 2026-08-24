@@ -14,12 +14,12 @@ services:
         value: errorlog
       - key: DB_CONNECTION
         value: pgsql
-      # Supabase Pooled Connection (use this for Render - direct connection is unreachable)
-      # Host: <region>.pooler.supabase.com, Port: 6543, User: postgres.<project-ref>
+      # Supabase Pooled Connection (Session Mode on 5432 or Transaction Mode on 6543)
+      # Host: <region>.pooler.supabase.com, Port: 5432, User: postgres.<project-ref>
       - key: DB_HOST
         sync: false  # e.g. aws-1-eu-west-2.pooler.supabase.com
       - key: DB_PORT
-        value: "6543"
+        value: "5432"
       - key: DB_DATABASE
         value: "postgres"
       - key: DB_USERNAME
